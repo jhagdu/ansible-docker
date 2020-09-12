@@ -1,0 +1,85 @@
+- hosts: [docker_hosts]
+  gather_facts: no
+
+  tasks:
+  - name: "Adding Docker Yum Repository"
+    yum_repository:
+      name: docker
+      description: Yum Repository for Docker
+      baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+      gpgcheck: no
+
+
+  - name: "Check weather Docker is installed or not"
+    package_facts:
+      manager: auto
+
+  - name: "Installing Docker if not"
+    command: "dnf install docker-ce --nobest -y"
+    register: dkr_install
+    when: "'docker-ce' not in ansible_facts.packages"
+
+
+  - name: "Start Docker Service"
+    service:
+      name: "docker"
+      state: started
+      enabled: yes
+    failed_when:
+      - "'docker-ce' not in ansible_facts.packages"
+      - "dkr_install.rc != 0"
+
+
+  - name: "Install Python"
+    package:
+      name: "python3"
+      state: present
+    register: pytn_install
+
+
+  - name: "Check Is Docker SDK Already installed"
+    command: "pip3 list | grep docker"
+    register: sdk_check
+
+  - name: "Install Docker SDK if not"
+    command: "pip3 install docker"
+    when: "sdk_check.rc != 0"
+
+
+  - name: "Create Directory in Managed Node"
+    file:
+      path: /root/webpages/
+      state: directory
+    register: create_dir
+
+  - name: "Copy WebPages from Controller to Managed Node"
+    copy:
+      content: "<center><h1><b>Ansible Task:</b> Deployed Docker Container Using Ansible</h1></center>"
+      dest: /root/webpages/index.html
+    register: cp_wp
+    when: "create_dir.failed == false"
+
+
+  - name: "Start Docker Container"
+    docker_container:
+      name: web1
+      image: httpd
+      pull: yes
+      state: started
+      exposed_ports:
+        - "80"
+      ports:
+        - 8080:80
+      volumes:
+        - /root/webpages/:/usr/local/apache2/htdocs/
+    register: cntnr_strt
+
+
+  - name: "Allow Masquerade"
+    firewalld:
+      masquerade: public
+      permanent: yes
+      zone: public
+      state: enabled
+      
+
