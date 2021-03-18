@@ -10,7 +10,7 @@ Ansible Should be installed
 
 
 ## Links
-[Click here for Video and Post](https://www.linkedin.com/in/amanjhagrolia143)  
+[Click here for Video and Post](https://www.linkedin.com/posts/amanjhagrolia143_vimaldaga-righteducation-educationredefine-activity-6778152689369964544-Tfng)  
 [Click here Article](https://amanjhagrolia.medium.com/hosted-website-on-docker-using-ansible-a92d06d41fc1?sk=9d671cf10e1ad1c00143f5b4ba06bd3c)
   
 ***Feel free to Contact!!***
